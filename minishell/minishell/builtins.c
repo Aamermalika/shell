@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 17:35:27 by maamer            #+#    #+#             */
-/*   Updated: 2022/09/26 19:02:48 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/08 21:10:34 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,12 +227,12 @@ char	**sort(t_list *head)
 		int j = 0;
 		while (j < env_var_numb - 1)
 		{
-	  		if(is_higher(arr[j], arr[j + 1]))
-	  		{ 
+			if(is_higher(arr[j], arr[j + 1]))
+			{
 				tmp = arr[j];
 				arr[j] = arr[j + 1];
 				arr[j + 1] = tmp;
-	  		}
+			}
 			j++;
 		}
 		i++;
@@ -243,7 +243,7 @@ char	**sort(t_list *head)
 void	print_env(char *arr)
 {
 	t_list	*head;
-	
+
 	head = v_lines->env_vars_head;
 	while(head)
 	{
@@ -252,13 +252,11 @@ void	print_env(char *arr)
 			if(head->value)
 				printf("declare -x %s=\"%s\" \n", head->key, head->value);
 			else
-				printf("%s\n", head->key);
+				printf("declare -x %s\n", head->key);
 		}
 		head = head->next;
 	}
 }
-
-
 
 int	args_types(char *str)
 {
@@ -272,10 +270,48 @@ int	args_types(char *str)
 		if(str[i] == '=' && str[i - 1] != '+')
 			return(1);
 		else if(str[i - 1] == '+' && str[i] == '=')
-			return(2);	
+			return(2);
 		i++;
 	}
 	return(3);//if !exists add with null otherwise noth
+}
+char *first(char *str)
+{
+	int	i = 0;
+	char *p;
+	
+	p = NULL;
+	while(str[i])
+		i++;
+	p = ft_substr(str, 0, i);
+	return(p);
+}
+
+int	arg_exist(char *arg)
+{
+	t_list	*head;
+
+	head = v_lines->env_vars_head;
+	while(head)
+	{
+		if(!ft_strncmp(head->key, arg, max(ft_strlen(head->key), ft_strlen(arg))))
+			return(0); //  equal
+		head = head->next;
+	}
+	return(1); // not equal
+}
+
+void	replace_arg_value(t_arguments *args)
+{
+	t_list		*head;
+
+	head = v_lines->env_vars_head;
+	while(head)
+	{
+		if(!ft_strncmp(head->key,first_half(args->arg), max(ft_strlen(head->key), ft_strlen(first_half(args->arg)))))
+			head->value = second_half(args->arg);
+		head = head->next;
+	}
 }
 
 void	ft_export(t_arguments *args)
@@ -286,8 +322,11 @@ void	ft_export(t_arguments *args)
 	int			env_number;
 	int			i = 0;
 	int			type;
+	int			equal;
+	char		*new_second_half;
 	
 	head = v_lines->env_vars_head;
+	
 	if(!args) //if we have just command
 	{
 		env_number = env_numb(head);
@@ -296,31 +335,37 @@ void	ft_export(t_arguments *args)
 			print_env(arr[i++]);
 		free(arr);
 	}
-	char *first;
-	char *second;
-	
 	while(args)
 	{
 		type = args_types(args->arg);
 		if(type == 0)
-		{
 			printf("export: '%s': not a valid identifier\n",args->arg);
-			break;
-		}
-		else if(type == 1)
+		else if(type == 3) //without second_half
 		{
-			new_arg = ft_lstnew(first_half(args->arg), second_half(args->arg));
-			ft_lstadd_back(head, new_arg);
+			equal = arg_exist(first(args->arg));
+			if(equal == 1)
+			{
+				new_arg = ft_lstnew(first(args->arg), NULL);
+				ft_lstadd_back(head, new_arg);
+			}
+		}
+		else if(type == 1) //=
+		{
+			equal = arg_exist(first_half(args->arg));
+			if(equal == 1)
+			{
+				new_arg = ft_lstnew(first_half(args->arg), second_half(args->arg));
+				ft_lstadd_back(head, new_arg);
+			}
+			else if(equal == 0)
+				replace_arg_value(v_lines->command_table->argument);
+		}
+		else if(type == 2) //+=
+		{
+			
 		}
 		args = args->next;
 		
 	}
-	
-	// while(head)
-	// {
-	// 	printf("key--->%s\n",head->key);
-	// 	printf("value--->%s\n",head->value);
-	// 	head = head->next;
-	// }
 	
 }

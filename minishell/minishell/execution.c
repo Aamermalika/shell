@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 16:55:41 by maamer            #+#    #+#             */
-/*   Updated: 2022/09/26 17:55:10 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/06 18:48:41 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ char **duplicate_envirement_var(char **env)
 		env_vars_count++;
 
 	array = malloc(sizeof(char *) * (env_vars_count + 1));
-
 	while (i < env_vars_count)
 	{
 		array[i] = ft_strdup(env[i]);
