@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 17:35:27 by maamer            #+#    #+#             */
-/*   Updated: 2022/10/08 21:10:34 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/10 14:29:04 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,18 +263,19 @@ int	args_types(char *str)
 	int	i;
 
 	i = 1;
-	if(!ft_isalpha(str[0]))
+	if(!ft_isalpha(str[0]) && str[0] != '_')
 		return(0);
 	while(str[i])
 	{
-		if(str[i] == '=' && str[i - 1] != '+')
-			return(1);
-		else if(str[i - 1] == '+' && str[i] == '=')
-			return(2);
+			if(str[i] == '=' && str[i - 1] != '+')
+				return(1);
+			else if(str[i - 1] == '+' && str[i] == '=')
+				return(2);
 		i++;
 	}
 	return(3);//if !exists add with null otherwise noth
 }
+
 char *first(char *str)
 {
 	int	i = 0;
@@ -301,19 +302,63 @@ int	arg_exist(char *arg)
 	return(1); // not equal
 }
 
-void	replace_arg_value(t_arguments *args)
+void	replace_arg_value(char *second, char *first)
+
 {
 	t_list		*head;
-
+	t_arguments	*args;
+	
+	args = v_lines->command_table->argument;
 	head = v_lines->env_vars_head;
 	while(head)
 	{
-		if(!ft_strncmp(head->key,first_half(args->arg), max(ft_strlen(head->key), ft_strlen(first_half(args->arg)))))
-			head->value = second_half(args->arg);
+		if(!ft_strncmp(head->key, first, max(ft_strlen(head->key), ft_strlen(first))))
+			head->value = second;
 		head = head->next;
 	}
 }
 
+char	*first_half_for_export_plus(char *str)
+{
+	int	i = 0;
+	char *p;
+
+	p = NULL;
+	while(str[i] != '=')
+		i++;
+	p = ft_substr(str, 0, i - 1);
+	return(p);
+}
+
+void	replace_second_half_export_plus(char *old_second, char *first_half_var)
+{
+	t_list *head;
+	t_arguments		*args;
+
+	head = v_lines->env_vars_head;
+	args = v_lines->command_table->argument;
+	while(head)
+	{
+		if(!ft_strncmp(head->key, first_half_var, max(ft_strlen(head->key), ft_strlen(first_half_var))))
+			head->value = old_second;
+		head = head->next;
+	}
+}
+
+char	*old_second_half_export_plus(char *arg)
+{
+	t_list	*head;
+	char	*old_second;
+
+	head = v_lines->env_vars_head;
+	while(head)
+	{
+		if(!ft_strncmp(head->key, arg, max(ft_strlen(head->key), ft_strlen(arg))))
+			old_second = head->value;
+		head = head->next;
+	}
+	return(old_second);
+}
 void	ft_export(t_arguments *args)
 {
 	t_list		*new_arg;
@@ -324,6 +369,8 @@ void	ft_export(t_arguments *args)
 	int			type;
 	int			equal;
 	char		*new_second_half;
+	char *line;
+	char *old_second;
 	
 	head = v_lines->env_vars_head;
 	
@@ -335,6 +382,7 @@ void	ft_export(t_arguments *args)
 			print_env(arr[i++]);
 		free(arr);
 	}
+	
 	while(args)
 	{
 		type = args_types(args->arg);
@@ -358,14 +406,24 @@ void	ft_export(t_arguments *args)
 				ft_lstadd_back(head, new_arg);
 			}
 			else if(equal == 0)
-				replace_arg_value(v_lines->command_table->argument);
+				replace_arg_value(second_half(args->arg), first_half(args->arg));
 		}
 		else if(type == 2) //+=
 		{
-			
+			equal = arg_exist(first_half_for_export_plus(args->arg));
+			if(equal == 1)
+			{
+				new_arg = ft_lstnew(first_half_for_export_plus(args->arg), second_half(args->arg));
+				ft_lstadd_back(head, new_arg);
+			}
+			else if(equal == 0)
+			{
+				old_second = old_second_half_export_plus(first_half_for_export_plus(args->arg));
+				old_second = ft_strjoin(old_second, second_half(args->arg));
+				replace_second_half_export_plus(old_second, first_half_for_export_plus(args->arg));
+			}
 		}
 		args = args->next;
-		
 	}
 	
 }

@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 16:55:41 by maamer            #+#    #+#             */
-/*   Updated: 2022/10/06 18:48:41 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/09 19:20:56 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ char *first_half(char *str)
 {
 	int	i = 0;
 	char *p;
-	
+
 	p = NULL;
 	while(str[i] != '=')
 		i++;
@@ -63,7 +63,10 @@ char *second_half(char *str)
 	while(str[i])
 	{
 		if(str[i] == '=')
+		{
 			p = ft_substr(str, i + 1, ft_strlen(str));
+			break;
+		}
 		i++;
 	}
 	return(p);
