@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 16:55:41 by maamer            #+#    #+#             */
-/*   Updated: 2022/10/09 19:20:56 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/10 21:41:35 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ char *first_half(char *str)
 	char *p;
 
 	p = NULL;
-	while(str[i] != '=')
+	while(str[i] != '=' )
 		i++;
 	p = ft_substr(str, 0, i);
 	return(p);
@@ -104,7 +104,7 @@ t_list *env_vars_list(char **env)
 		while(i < env_vars_count)
 		{
 			new_node = ft_lstnew(first_half(env[i]), second_half(env[i]));
-			ft_lstadd_back(lst, new_node);
+			ft_lstadd_back1(&lst, new_node);
 			lst = lst->next;
 			i++;
 		}

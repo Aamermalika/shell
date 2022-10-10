@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 17:35:27 by maamer            #+#    #+#             */
-/*   Updated: 2022/10/10 14:29:04 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/10 22:24:15 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ void	ft_pwd()
 void	ft_env()
 {
 	t_list *head = v_lines->env_vars_head;
+	// if(!head)
+	// 	return(0);
 	while(head)
 	{
 		if(head->value)
@@ -267,10 +269,10 @@ int	args_types(char *str)
 		return(0);
 	while(str[i])
 	{
-			if(str[i] == '=' && str[i - 1] != '+')
-				return(1);
-			else if(str[i - 1] == '+' && str[i] == '=')
-				return(2);
+		if(str[i] == '=' && str[i - 1] != '+')
+			return(1);
+		else if(str[i - 1] == '+' && str[i] == '=')
+			return(2);
 		i++;
 	}
 	return(3);//if !exists add with null otherwise noth
@@ -280,11 +282,11 @@ char *first(char *str)
 {
 	int	i = 0;
 	char *p;
-	
+
 	p = NULL;
 	while(str[i])
 		i++;
-	p = ft_substr(str, 0, i);
+	p = ft_substr(str, 0, i);	
 	return(p);
 }
 
@@ -345,6 +347,22 @@ void	replace_second_half_export_plus(char *old_second, char *first_half_var)
 	}
 }
 
+int	check_error_of_first_half(char *str)
+{
+	int i = 0;
+	while(str[i])
+	{
+		if(!ft_isalnum(str[i]))
+		{
+			printf("export: '%s': not a valid identifier\n",str);
+				return(0);
+			break;
+		}
+		i++;
+	}
+	return(1);
+}
+
 char	*old_second_half_export_plus(char *arg)
 {
 	t_list	*head;
@@ -359,6 +377,7 @@ char	*old_second_half_export_plus(char *arg)
 	}
 	return(old_second);
 }
+
 void	ft_export(t_arguments *args)
 {
 	t_list		*new_arg;
@@ -369,11 +388,11 @@ void	ft_export(t_arguments *args)
 	int			type;
 	int			equal;
 	char		*new_second_half;
-	char *line;
-	char *old_second;
+	char		*line;
+	char		*old_second;
+	int			check_error;
 	
 	head = v_lines->env_vars_head;
-	
 	if(!args) //if we have just command
 	{
 		env_number = env_numb(head);
@@ -382,7 +401,7 @@ void	ft_export(t_arguments *args)
 			print_env(arr[i++]);
 		free(arr);
 	}
-	
+	//check_error = check_error_of_first_half(first_half(args->arg));
 	while(args)
 	{
 		type = args_types(args->arg);
@@ -390,33 +409,36 @@ void	ft_export(t_arguments *args)
 			printf("export: '%s': not a valid identifier\n",args->arg);
 		else if(type == 3) //without second_half
 		{
+			check_error = check_error_of_first_half(first(args->arg));
 			equal = arg_exist(first(args->arg));
-			if(equal == 1)
+			if(equal == 1 && check_error == 1)
 			{
 				new_arg = ft_lstnew(first(args->arg), NULL);
-				ft_lstadd_back(head, new_arg);
+				ft_lstadd_back1(&v_lines->env_vars_head, new_arg);
 			}
 		}
 		else if(type == 1) //=
 		{
+			check_error = check_error_of_first_half(first_half(args->arg));
 			equal = arg_exist(first_half(args->arg));
-			if(equal == 1)
+			if(equal == 1 && check_error == 1)
 			{
 				new_arg = ft_lstnew(first_half(args->arg), second_half(args->arg));
-				ft_lstadd_back(head, new_arg);
+				ft_lstadd_back1(&v_lines->env_vars_head, new_arg);
 			}
-			else if(equal == 0)
+			else if(equal == 0 && check_error == 1)
 				replace_arg_value(second_half(args->arg), first_half(args->arg));
 		}
 		else if(type == 2) //+=
 		{
 			equal = arg_exist(first_half_for_export_plus(args->arg));
-			if(equal == 1)
+			check_error = check_error_of_first_half(first_half_for_export_plus(args->arg));
+			if(equal == 1 && check_error == 1)
 			{
 				new_arg = ft_lstnew(first_half_for_export_plus(args->arg), second_half(args->arg));
-				ft_lstadd_back(head, new_arg);
+				ft_lstadd_back1(&v_lines->env_vars_head, new_arg);
 			}
-			else if(equal == 0)
+			else if(equal == 0 && check_error == 1)
 			{
 				old_second = old_second_half_export_plus(first_half_for_export_plus(args->arg));
 				old_second = ft_strjoin(old_second, second_half(args->arg));
@@ -425,5 +447,5 @@ void	ft_export(t_arguments *args)
 		}
 		args = args->next;
 	}
-	
 }
+

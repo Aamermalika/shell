@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 16:42:28 by maamer            #+#    #+#             */
-/*   Updated: 2022/09/23 16:31:03 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/10 22:09:06 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,19 +28,36 @@ t_list	*ft_lstnew(char *first, char *second)
 
 void	ft_lstadd_front(t_list **alst, t_list *new)
 {
-	if (alst == NULL || new == NULL)
+	if (alst == NULL  || new == NULL)
 		return ;
 	new->next = *alst;
 	*alst = new;
 }
 
-void	ft_lstadd_back(t_list *head , t_list *new)
+// void	ft_lstadd_back(t_list *head , t_list *new)
+// {
+// 	while(head->next)
+// 	{
+// 		head = head->next;
+// 	}
+// 	head->next = new;
+// }
+
+void	ft_lstadd_back1(t_list **head , t_list *new)
 {
-	while(head->next)
+	t_list	*tmp;
+	
+	if (!head || !*head)
 	{
-		head = head->next;
+		*head = new;
+		return ;
 	}
-	head->next = new;
+	tmp = *head;
+	while(tmp->next)
+	{
+		tmp = tmp->next;
+	}
+	tmp->next = new;
 }
 
 t_list	*del_node(t_list *list_head, t_list *node_2_delete)

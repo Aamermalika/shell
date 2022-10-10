@@ -43,5 +43,7 @@ int	ft_isalpha(int c);
 t_list	*ft_lstnew(char *first, char *second);
 void	ft_lstadd_back(t_list *head , t_list *new);
 t_list	*del_node(t_list *list_head, t_list *node_2_delete);
+
+void	ft_lstadd_back1(t_list **head , t_list *new);
 #endif
 

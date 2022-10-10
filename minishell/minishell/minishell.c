@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/08 09:39:10 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/09/26 14:50:44 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/10 20:25:21 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1556,8 +1556,8 @@ void execute_built_in_parent(int built_in_number)
 			ft_pwd();
 		else if(built_in_number == 14)
 			ft_unset();
-		// else if(built_in_number == 15)
-		// 	ft_exit();
+		//else if(built_in_number == 15)
+			//ft_exit();
 		else if(built_in_number == 16)
 			ft_env();
 		else if(built_in_number == 17)
