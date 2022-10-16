@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/08 09:39:10 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/10/10 20:25:21 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/16 18:35:14 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,8 @@ void free_env(char **arr)
 
 int handle_exit()
 {
-	printf("exit\n");
-	free_env(v_lines->env_vars);  
+	//printf("exit\n");
+	free_env(v_lines->env_vars);
 	tcsetattr(0, TCSANOW, &v_lines->terminal_settings);
 	system("leaks minishell");
 	exit(v_lines->exit_status);
@@ -1101,7 +1101,7 @@ int handle_command_wildcard(t_commandtable *command_table)
 }
 
 t_arguments *handle_args_wildcard(t_commandtable *command_table, t_arguments *args)//should handle the case where arg is the first, if you dont find previous to link it with after deleting the current one then take
-													//it and put it as the command table//check the condition of this in link arguments?
+															//it and put it as the command table//check the condition of this in link arguments?
 {
 	t_arguments *next;
 	t_arguments *previous;
@@ -1505,7 +1505,7 @@ int built_in_check(char *line)
 	else if (!ft_strncmp("unset", line, max(ft_strlen(line), ft_strlen("unset")))\
 		&& ft_strncmp("UNSET", line, max(ft_strlen(line), ft_strlen("UNSET"))))
 		return 14;
-	else if (!ft_strncmp("exit", to_lower(line), max(ft_strlen(line), ft_strlen("exit"))) \
+	else if (!ft_strncmp("exit", line, max(ft_strlen(line), ft_strlen("exit"))) \
 		&& ft_strncmp("EXIT", line, max(ft_strlen(line), ft_strlen("EXIT"))))
 		return 15;
 	else if (!ft_strncmp("env", line, max(ft_strlen(line), ft_strlen("env"))) \
@@ -1556,8 +1556,8 @@ void execute_built_in_parent(int built_in_number)
 			ft_pwd();
 		else if(built_in_number == 14)
 			ft_unset();
-		//else if(built_in_number == 15)
-			//ft_exit();
+		else if(built_in_number == 15)
+			ft_exit(v_lines->command_table->argument);
 		else if(built_in_number == 16)
 			ft_env();
 		else if(built_in_number == 17)
@@ -1594,6 +1594,7 @@ int process_command_table(t_line_processing_history *v_lines)
 
 	// if built in// execute it/ then fork and make it work in the child process as well
 	built_in_number = is_built_in(v_lines);
+
 	signal(SIGINT, &in_herdoc);
 	//printf("%s \n ", v_lines->command_table->command);
 	v_lines->parent_id = fork();
@@ -1637,11 +1638,14 @@ int process_command_table(t_line_processing_history *v_lines)
 
 int processline(t_line_processing_history *v_lines)
 {
+
 	int parse_success;
 	int built_in_number;
+
 	v_lines->trimmed_line = ft_strtrim(v_lines->entered_line, " 		");
 	if (!ft_strncmp(v_lines->trimmed_line, "exit", max(ft_strlen(v_lines->trimmed_line), 4)))
 	{
+		printf("exit\n");
 		handle_exit();
 	}
 	parse_success = parse(v_lines);
@@ -1649,13 +1653,15 @@ int processline(t_line_processing_history *v_lines)
 		parse_success = process_command_table(v_lines);
 	if (parse_success)
 	{
+		//index_of_path(v_lines->command_table->command);
+		
 		//print_ct(v_lines);
 		//built_in_number = is_built_in(v_lines);
 		// if(!built_in_number) ->>>> in pipe loop (if built in dont execute unless its last)(pwd / env / echo / export with no arg)
 		// {}
-			// syntax_check();
+			//syntax_check();
 			//execve();
-			// execute(v_lines);//talk bout if theres smth that needs to go back here in the parsin
+			execute(v_lines);//talk bout if theres smth that needs to go back here in the parsin
 
 		
 	}
@@ -1670,24 +1676,20 @@ int main(int argc, char **argv, char **env)
 	initialize_v_lines(v_lines, env);
 	v_lines->env_vars_head = env_vars_list(v_lines->env_vars);
 	handle_signals();
-
 	struct termios oldtio;
 	//struct termios newtio;
-
 	tcgetattr(0, &oldtio);
 	v_lines->terminal_settings = oldtio;
 	oldtio.c_lflag &= ~ICANON;
 	oldtio.c_lflag &= ECHO;
 	tcsetattr(0, TCSANOW, &oldtio);
-
+	//index_of_path(v_lines->command_table->command);
 	while (1)
 	{
 		handle_signals();
 		v_lines->entered_line = readline("bash tsetta -0.1 $ ");
-
 		if (!v_lines->entered_line)
 			handle_exit();
-
 		if (!is_full_of_whitespaces(v_lines->entered_line))
 		{
 			add_history(v_lines->entered_line);

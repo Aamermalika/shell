@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 16:42:28 by maamer            #+#    #+#             */
-/*   Updated: 2022/10/10 22:09:06 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/12 19:45:38 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,15 +85,15 @@ t_list	*del_node(t_list *list_head, t_list *node_2_delete)
 	return(next);
 }
 
-int	ft_lstsize(t_list *lst)
-{
-	int	count;
+// int	ft_lstsize(t_list *lst)
+// {
+// 	int	count;
 
-	count = 0;
-	while (lst != NULL)
-	{
-		lst = lst->next;
-		count++;
-	}
-	return (count);
-}
+// 	count = 0;
+// 	while (lst != NULL)
+// 	{
+// 		lst = lst->next;
+// 		count++;
+// 	}
+// 	return (count);
+// }

@@ -6,7 +6,7 @@
 /*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/16 17:35:27 by maamer            #+#    #+#             */
-/*   Updated: 2022/10/10 22:24:15 by maamer           ###   ########.fr       */
+/*   Updated: 2022/10/16 18:41:03 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 void	exec()
 {
 	int id;
-	char  *a[] = { "/bin/ls","-la", NULL};
+	char  *a[] = { "/bin/ls","ls", NULL};
 	id = fork();
 	if(!id)
 	{	
@@ -35,17 +35,21 @@ void	ft_pwd()
 	char *p;
 	p = getcwd(str,100);
 	if(!p)
+	{
 		perror("getcwd() error");
+		v_lines->exit_status = 1;
+	}
 	else
+	{
+		v_lines->exit_status = 0;
 		printf("%s\n",str);
-
+	}
+		
 }
 
 void	ft_env()
 {
 	t_list *head = v_lines->env_vars_head;
-	// if(!head)
-	// 	return(0);
 	while(head)
 	{
 		if(head->value)
@@ -63,7 +67,7 @@ void	old_pwd_env()
 	char *new_old_pwd = NULL;
 	char str[10000];
 	char *current_directory;
-	
+
 	t_list *head = v_lines->env_vars_head;
 	while(head)
 	{
@@ -131,16 +135,23 @@ void	ft_cd()
 	{
 		flag = chdir(cd_home());
 		if(flag == -1)
-				perror("chdir");
+		{
+			v_lines->exit_status = 1;
+			perror("chdir");
+		}
 	}
 	else if(args->arg[0] == '~' && ft_strlen(args->arg) == 1)
 	{
 		flag = chdir(cd_home());
 		if(flag == -1)
+		{
+			v_lines->exit_status = 1;
 			perror("cd");
+		}
 	}
 	else if (chdir(args->arg) == -1)
 	{
+		v_lines->exit_status = 1;
 		perror("cd");
 		flag = -1;
 	}
@@ -354,6 +365,7 @@ int	check_error_of_first_half(char *str)
 	{
 		if(!ft_isalnum(str[i]))
 		{
+			v_lines->exit_status = 1;
 			printf("export: '%s': not a valid identifier\n",str);
 				return(0);
 			break;
@@ -401,12 +413,14 @@ void	ft_export(t_arguments *args)
 			print_env(arr[i++]);
 		free(arr);
 	}
-	//check_error = check_error_of_first_half(first_half(args->arg));
 	while(args)
 	{
 		type = args_types(args->arg);
 		if(type == 0)
+		{
 			printf("export: '%s': not a valid identifier\n",args->arg);
+			v_lines->exit_status = 1;
+		}
 		else if(type == 3) //without second_half
 		{
 			check_error = check_error_of_first_half(first(args->arg));
@@ -446,6 +460,69 @@ void	ft_export(t_arguments *args)
 			}
 		}
 		args = args->next;
+	}
+}
+int	arg_is_digit_or_not(char *str)
+{
+	int i = 0;
+	if(str[i] == '-')
+		i++;
+	while(str[i])
+	{
+		if(ft_isdigit(str[i]))
+			i++;
+		else
+			return(0);
+	}
+	return(1);
+}
+
+void	ft_exit(t_arguments *args)
+{
+	int	i;
+	int digit_arg;
+	int count_arg = 0;
+	int	nb;
+	digit_arg = arg_is_digit_or_not(args->arg);
+	i = 0;
+	while(args)
+	{
+		args = args->next;
+		count_arg++;
+	}
+	args = v_lines->command_table->argument;
+	if(count_arg == 1)
+	{
+		if(digit_arg == 1)
+		{
+			nb = ft_atoi(args->arg);
+			v_lines->exit_status = nb % 256;
+			printf("exit\n");
+			handle_exit();
+		}
+		else if(digit_arg == 0)
+		{
+			v_lines->exit_status = 255;
+			printf("exit\n");
+			printf("bash tsetta -0.1: exit: %s: numeric argument required\n", args->arg);
+			handle_exit();
+		}
+	}
+	else if (count_arg > 1)
+	{
+		if(digit_arg == 1)
+		{
+			v_lines->exit_status = 1;
+			printf("exit\n");
+			printf("bash tsetta -0.1: exit: too many arguments\n");
+		}
+		else
+		{
+			v_lines->exit_status = 255;
+			printf("exit\n");
+			printf("bash tsetta -0.1: exit: %s: numeric argument required\n", args->arg);
+			handle_exit();
+		}
 	}
 }
 

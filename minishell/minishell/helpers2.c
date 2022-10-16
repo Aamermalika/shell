@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   helpers2.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: maamer <maamer@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/08 15:51:34 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/03/22 12:46:54 by mel-amma         ###   ########.fr       */
+/*   Updated: 2022/10/12 21:50:44 by maamer           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ char	*ft_strdup(const char *s1)
 	char	*str;
 
 	i = 0;
+	if(!s1)
+		return (0);
 	str = (char *)malloc(sizeof(char) * (ft_strlen((char *)s1) + 1));
 	if (str == 0)
 		return (0);
